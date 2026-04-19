@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>66的城市 · 和99一起成长</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ==================== 背景装饰 ==================== -->
+<div class="sun"></div>
+<div class="cloud c1"></div>
+<div class="cloud c2"></div>
+<div class="cloud c3"></div>
+
+<!-- ==================== 顶部状态栏 ==================== -->
+<div class="topbar">
+  <div class="stat-chip coin"><span class="ico">🪙</span><span class="num" id="coin">0</span></div>
+  <div class="stat-chip level"><span class="ico">🏆</span><span class="num" id="level">1</span></div>
+  <div class="stat-chip streak"><span class="ico">🔥</span><span class="num" id="streak">0</span></div>
+  <button class="menu-btn" id="chatBtn" title="和Claude聊天">💬</button>
+  <button class="menu-btn" id="collectionBtn" title="收集册">🎒</button>
+  <button class="menu-btn" id="parentBtn" title="家长中心">👨‍👩‍👦</button>
+</div>
+
+<!-- ==================== 每日任务 ==================== -->
+<div class="daily-strip" id="dailyStrip">
+  <div class="label">今日任务</div>
+  <div id="dailyText">0/3 完成</div>
+  <div class="bar-mini"><div class="bar-mini-fill" id="dailyBar" style="width:0%"></div></div>
+</div>
+
+<!-- ==================== 欢迎标题 ==================== -->
+<div class="welcome">
+  <h1>66 的城市 🏙️</h1>
+  <p>和 99 一起，边玩边学！</p>
+</div>
+
+<!-- ==================== 99卡皮巴拉状态面板（浮动） ==================== -->
+<div class="capy-panel" id="capyPanel">
+  <div class="capy-header">
+    <span class="capy-emoji" id="capyEmoji">🥔</span>
+    <div class="capy-info">
+      <div class="capy-name">99 <span class="capy-age" id="capyAge">幼年</span></div>
+      <div class="capy-mood" id="capyMood">精神饱满~</div>
+    </div>
+    <button class="capy-expand" id="capyExpand">▸</button>
+  </div>
+  <div class="capy-bars" id="capyBars">
+    <div class="capy-bar"><span class="bar-icon">🍖</span><div class="bar-track"><div class="bar-fill hunger" id="barHunger"></div></div></div>
+    <div class="capy-bar"><span class="bar-icon">❤️</span><div class="bar-track"><div class="bar-fill mood" id="barMood"></div></div></div>
+    <div class="capy-bar"><span class="bar-icon">💤</span><div class="bar-track"><div class="bar-fill energy" id="barEnergy"></div></div></div>
+    <div class="capy-bar"><span class="bar-icon">📚</span><div class="bar-track"><div class="bar-fill iq" id="barIq"></div></div></div>
+  </div>
+</div>
+
+<!-- ==================== 城市场景 ==================== -->
+<div class="city-scene">
+  <div class="ground"></div>
+  <!-- 99 和它的窝 -->
+  <div class="capy-home" id="capyHome">
+    <div class="capy-shelter" id="capyShelter">🏕️</div>
+    <div class="capy-sprite" id="capySprite" title="点我照顾99">🦫</div>
+    <div class="zzz" id="zzz" style="display:none">💤</div>
+  </div>
+  <div class="buildings" id="buildings"></div>
+</div>
+
+<!-- ==================== 学科选择栏 ==================== -->
+<div class="subject-dock">
+  <button class="subject-btn" data-sub="chinese">
+    <span class="emoji">📖</span><span class="name">语文</span><span class="count" id="cnt-chinese">0</span>
+  </button>
+  <button class="subject-btn" data-sub="math">
+    <span class="emoji">🧮</span><span class="name">数学</span><span class="count" id="cnt-math">0</span>
+  </button>
+  <button class="subject-btn" data-sub="english">
+    <span class="emoji">🔤</span><span class="name">英语</span><span class="count" id="cnt-english">0</span>
+  </button>
+  <button class="subject-btn" data-sub="thinking">
+    <span class="emoji">🧩</span><span class="name">思维</span><span class="count" id="cnt-thinking">0</span>
+  </button>
+  <button class="subject-btn" data-sub="ai">
+    <span class="emoji">🤖</span><span class="name">AI启蒙</span><span class="count" id="cnt-ai">0</span>
+  </button>
+  <button class="subject-btn" data-sub="aigame">
+    <span class="emoji">🎮</span><span class="name">AI游戏</span><span class="count">玩</span>
+  </button>
+  <button class="subject-btn locked" data-sub="boss">
+    <span class="emoji">👑</span><span class="name">大挑战</span><span class="count" id="cnt-boss">Lv.3</span>
+  </button>
+</div>
+
+<!-- ==================== 答题弹窗 ==================== -->
+<div class="overlay" id="quizOverlay">
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="sub-tag" id="subTag">语文</span>
+      <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      <span class="counter" id="counter">1/5</span>
+      <button class="quiz-close" id="closeQuiz">✕</button>
+    </div>
+    <div class="quiz-body">
+      <div class="mascot-line">
+        <div class="mascot" id="mascot">🦊</div>
+        <div class="mascot-bubble" id="mascotBubble">来挑战一下吧，泽宇！</div>
+      </div>
+      <div class="question-row">
+        <div class="question" id="question">题目加载中...</div>
+        <div class="question-tools">
+          <button class="tool-btn speak" id="speakBtn" title="朗读题目">🔊</button>
+          <button class="tool-btn hint" id="hintBtn" title="提示">💡</button>
+          <button class="tool-btn ai" id="aiBtn" title="问Claude">🤖</button>
+        </div>
+      </div>
+      <div class="hint-area" id="hintArea"></div>
+      <div class="ai-reply" id="aiReply"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="nextBtn">下一题 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 结算弹窗 ==================== -->
+<div class="overlay" id="resultOverlay">
+  <div class="result-card">
+    <div class="big-emoji" id="resultEmoji">🎉</div>
+    <h2 id="resultTitle">真棒！</h2>
+    <p class="sub" id="resultSub">城市又长大啦~</p>
+    <div class="new-pet" id="newPet">
+      <div style="font-size:13px;color:var(--ink-soft);margin-bottom:4px">🎁 你获得了新伙伴！</div>
+      <span class="big-pet" id="newPetEmoji">🐶</span>
+      <div style="font-weight:700;margin-top:4px" id="newPetName">小狗</div>
+    </div>
+    <div class="result-stats">
+      <div class="cell"><div class="v" id="rsRight">0</div><div class="l">答对</div></div>
+      <div class="cell"><div class="v" id="rsCoin">0</div><div class="l">金币</div></div>
+      <div class="cell"><div class="v" id="rsStreak">0</div><div class="l">连对</div></div>
+    </div>
+    <div class="capy-gained" id="capyGained"></div>
+    <div class="result-actions">
+      <button class="again" id="againBtn">再来一轮</button>
+      <button class="home" id="homeBtn">回城市</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 99 照顾面板 ==================== -->
+<div class="overlay" id="capyOverlay">
+  <div class="parent-card capy-card">
+    <h2>🦫 照顾 99</h2>
+
+    <div class="capy-big-view">
+      <div class="capy-stage" id="capyStage">
+        <div class="capy-big" id="capyBig">🥔</div>
+        <div class="capy-action-hint" id="capyActionHint"></div>
+      </div>
+      <div class="capy-status-grid">
+        <div class="status-line"><span>🍖 饥饿</span><div class="bar-bg"><div class="bar" id="bigHunger"></div></div><span id="bigHungerNum">100</span></div>
+        <div class="status-line"><span>❤️ 心情</span><div class="bar-bg"><div class="bar" id="bigMood"></div></div><span id="bigMoodNum">100</span></div>
+        <div class="status-line"><span>💤 体力</span><div class="bar-bg"><div class="bar" id="bigEnergy"></div></div><span id="bigEnergyNum">100</span></div>
+        <div class="status-line"><span>📚 智力</span><div class="bar-bg"><div class="bar" id="bigIq"></div></div><span id="bigIqNum">0</span></div>
+      </div>
+    </div>
+
+    <div class="capy-tabs">
+      <button class="capy-tab active" data-tab="feed">🍖 喂食</button>
+      <button class="capy-tab" data-tab="toy">🎾 玩耍</button>
+      <button class="capy-tab" data-tab="sleep">🛌 睡觉</button>
+      <button class="capy-tab" data-tab="shop">🏠 商店</button>
+    </div>
+
+    <div class="capy-tab-content" id="capyTabContent"></div>
+
+    <div class="parent-actions">
+      <button class="close-btn" onclick="closeOverlay('capyOverlay')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== AI 游戏弹窗 ==================== -->
+<div class="overlay" id="aigameOverlay">
+  <div class="parent-card aigame-card">
+    <h2>🎮 教 AI 认水果</h2>
+    <p class="ai-game-intro" id="aiGameIntro">
+      欢迎来到 AI 训练课堂！AI 宝宝什么都不会，需要你来教它~<br>
+      <b>第 1 步</b>：给它看 5 个水果，告诉它是什么。
+    </p>
+
+    <div class="ai-game-area" id="aiGameArea">
+      <!-- 内容由 JS 动态生成 -->
+    </div>
+
+    <div class="parent-actions">
+      <button class="close-btn" onclick="closeOverlay('aigameOverlay')">关闭</button>
+      <button class="reset-btn" id="aiGameReset">重新开始</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== AI 聊天弹窗 ==================== -->
+<div class="overlay" id="chatOverlay">
+  <div class="parent-card chat-card">
+    <h2>💬 和 Claude 聊天</h2>
+    <p class="chat-hint">和 AI 大哥哥聊聊天吧~ 有什么想知道的都可以问！</p>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg ai">
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-bubble">你好 66！我是 Claude~ 你想聊什么呀？学习上的问题、好奇的事、或者你的卡皮巴拉 99，都可以告诉我哦！</div>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="输入你想说的话..." maxlength="200">
+      <button id="chatSend">发送</button>
+    </div>
+    <div class="parent-actions">
+      <button class="close-btn" onclick="closeOverlay('chatOverlay')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 收集册 ==================== -->
+<div class="overlay" id="collectionOverlay">
+  <div class="parent-card">
+    <h2>🎒 66 的收集册</h2>
+
+    <div class="parent-section">
+      <h3>📅 今日任务</h3>
+      <div id="taskList"></div>
+    </div>
+
+    <div class="parent-section">
+      <h3>🐾 伙伴图鉴（<span id="petCount">0</span>/<span id="petTotal">0</span>）</h3>
+      <div class="pet-collection" id="petCollection"></div>
+    </div>
+
+    <div class="parent-section">
+      <h3>🏙️ 城市建筑（<span id="bdCount">1</span>/<span id="bdTotal">8</span>）</h3>
+      <div class="pet-collection" id="bdCollection"></div>
+    </div>
+
+    <div class="parent-section">
+      <h3>📝 错题本</h3>
+      <div id="mistakeList" style="font-size:13px;line-height:1.6;"></div>
+    </div>
+
+    <div class="parent-actions">
+      <button class="close-btn" onclick="closeOverlay('collectionOverlay')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 家长中心（带密码） ==================== -->
+<div class="overlay" id="parentGateOverlay">
+  <div class="parent-card" style="max-width:360px;text-align:center">
+    <h2>🔐 家长验证</h2>
+    <p style="color:var(--ink-soft);font-size:14px;margin-bottom:14px">请输入家长密码<br>（默认：66 的生日 0417）</p>
+    <input type="password" id="gatePwd" maxlength="4" inputmode="numeric"
+      style="width:100%;padding:14px;font-size:24px;text-align:center;border:3px solid var(--ink);border-radius:14px;letter-spacing:14px">
+    <div id="gateError" style="color:var(--wrong);margin-top:8px;font-size:14px;min-height:18px"></div>
+    <div class="parent-actions">
+      <button class="close-btn" onclick="closeOverlay('parentGateOverlay')">取消</button>
+      <button class="reset-btn" id="gateSubmit" style="background:linear-gradient(180deg,#d4ecff,#92c8ff)">确认</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="parentOverlay">
+  <div class="parent-card">
+    <h2>👨‍👩‍👦 家长中心</h2>
+    <div class="parent-grid">
+      <div class="parent-cell"><div class="label">累计答题</div><div class="value" id="pTotal">0</div></div>
+      <div class="parent-cell"><div class="label">正确率</div><div class="value" id="pAcc">0%</div></div>
+      <div class="parent-cell"><div class="label">累计学习</div><div class="value" id="pTime">0分</div></div>
+      <div class="parent-cell"><div class="label">今日题数</div><div class="value" id="pToday">0</div></div>
+      <div class="parent-cell"><div class="label">连续打卡</div><div class="value" id="pDays">0天</div></div>
+      <div class="parent-cell"><div class="label">独立作答率</div><div class="value" id="pIndep">100%</div></div>
+    </div>
+
+    <div class="parent-section">
+      <h3>📊 各科掌握度</h3>
+      <div id="skillBars"></div>
+    </div>
+
+    <div class="parent-section">
+      <h3>⚠️ 薄弱知识点</h3>
+      <ul class="weak-list" id="weakList"><li>还没有足够数据</li></ul>
+    </div>
+
+    <div class="parent-section">
+      <h3>💡 提示使用与AI使用</h3>
+      <div id="hintStats" style="font-size:13px;line-height:1.7;color:var(--ink-soft)"></div>
+    </div>
+
+    <div class="parent-section">
+      <h3>⚙️ 设置</h3>
+      <div style="font-size:13px;line-height:1.8;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="setFocusLimit" checked>
+          专注时长提醒（20 分钟后休息）
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="setAutoSpeak" checked>
+          英语题自动朗读
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="setAIGen" checked>
+          使用 AI 动态生成新题
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          家长密码：
+          <input type="password" id="setPwd" maxlength="4" placeholder="4 位数字"
+            style="width:80px;padding:4px 8px;border:2px solid var(--ink);border-radius:6px;text-align:center">
+          <button id="setPwdBtn" style="padding:4px 10px;border:2px solid var(--ink);border-radius:6px;background:var(--paper-2);cursor:pointer">修改</button>
+        </label>
+      </div>
+    </div>
+
+    <div class="parent-section">
+      <h3>🤖 数据飞轮 / 系统工作方式</h3>
+      <div class="info-box">
+        系统记录每题的对错、用时、知识点 + 提示层级：<br>
+        · 错题 3~7 天后"复仇出现"<br>
+        · 薄弱知识点出题频率加倍<br>
+        · 连续做对逐步加大难度<br>
+        · 用过提示的题会再次出现<br>
+        · 开启 AI 生成后，会动态产生新题（云端缓存）
+      </div>
+    </div>
+
+    <div class="parent-section">
+      <h3>💡 家长使用小建议</h3>
+      <div class="info-box">
+        · 每天 10-15 分钟最佳<br>
+        · 正确率 60-80% 最利于成长<br>
+        · 鼓励他点 💡 按钮自己引导，而非直接问答案<br>
+        · AI 陪练 🤖 会用苏格拉底式引导，不直接给答案<br>
+        · 99 的心情和 66 的学习紧密绑定，一举两得
+      </div>
+    </div>
+
+    <div class="parent-actions">
+      <button class="close-btn" onclick="closeOverlay('parentOverlay')">关闭</button>
+      <button class="reset-btn" id="exportBtn" style="background:linear-gradient(180deg,#d4ecff,#92c8ff)">导出数据</button>
+      <button class="reset-btn" onclick="resetAll()">重置数据</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 专注提醒弹窗 ==================== -->
+<div class="overlay" id="focusOverlay">
+  <div class="parent-card" style="max-width:380px;text-align:center">
+    <div style="font-size:60px">😴</div>
+    <h2>休息一下吧~</h2>
+    <p style="color:var(--ink-soft);margin-bottom:14px">
+      99 说："陪 66 玩了好久啦，我们一起休息 5 分钟吧？<br>
+      去喝口水，看看远方~"
+    </p>
+    <button class="close-btn" onclick="closeOverlay('focusOverlay')"
+      style="background:linear-gradient(180deg,#fff2c2,#ffd86b);border:3px solid var(--ink);border-radius:16px;padding:12px 24px;font-family:'ZCOOL KuaiLe';font-size:18px;cursor:pointer;box-shadow:0 4px 0 var(--ink)">
+      好的，去休息~
+    </button>
+  </div>
+</div>
+
+<!-- ==================== 特效层 ==================== -->
+<div class="celebrate" id="celebrate"></div>
+<div class="toast" id="toast"></div>
+
+<!-- ==================== 脚本加载 ==================== -->
+<script src="questions.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

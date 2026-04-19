@@ -1,0 +1,16 @@
+{
+  "name": "66city",
+  "version": "0.3.0",
+  "description": "66的城市 · 边玩边学，和99一起成长 · 7岁一年级学习应用",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["education", "kids", "ai", "claude", "capybara"],
+  "author": "",
+  "license": "MIT"
+}
