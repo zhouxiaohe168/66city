@@ -419,15 +419,64 @@ function updateCapyUI() {
 }
 
 // ============================================================
-// 【朗读 TTS】
+// 【朗读 TTS · 智能中英文分段】
 // ============================================================
+// 把一段混合文本按中英文拆成片段
+// 例如："'red' 是什么颜色？" → [{text:'red',lang:'en'}, {text:'是什么颜色？',lang:'zh'}]
+function splitByLang(text, defaultLang) {
+  // 判断一个字符的语言类型
+  // 英文字母/数字/英文标点连在一起算英文段
+  // 中文字符/中文标点算中文段
+  // 空格/通用标点（如 ,.?!）跟随前一段
+  const segments = [];
+  let buf = '';
+  let curLang = null;  // 'zh' | 'en'
+  const isZh = c => /[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/.test(c);
+  const isEn = c => /[a-zA-Z]/.test(c);
+
+  for (const ch of text) {
+    let chLang;
+    if (isZh(ch)) chLang = 'zh';
+    else if (isEn(ch)) chLang = 'en';
+    else chLang = null;  // 空格、数字、通用标点、emoji：跟前段走
+
+    if (chLang && curLang && chLang !== curLang) {
+      // 语言切换，把现在的 buf 作为一段保存
+      if (buf.trim()) segments.push({ text: buf, lang: curLang });
+      buf = '';
+    }
+    buf += ch;
+    if (chLang) curLang = chLang;
+  }
+  if (buf.trim()) segments.push({ text: buf, lang: curLang || (defaultLang === 'en-US' ? 'en' : 'zh') });
+  return segments;
+}
+
 function speak(text, lang = 'zh-CN') {
-  if (!('speechSynthesis' in window)) return;
+  if (!('speechSynthesis' in window) || !text) return;
   try {
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang; u.rate = 0.9; u.pitch = 1.1;
-    window.speechSynthesis.speak(u);
+
+    // 如果指定了 en-US（英语题朗读题目），就全部用英语念（不拆段）
+    // 因为英语题的"题目部分"就是要完整英语体验
+    // 但其他场景（提示、AI 回复、手动点 🔊）都走智能分段
+    if (lang === 'en-US') {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US'; u.rate = 0.9; u.pitch = 1.1;
+      window.speechSynthesis.speak(u);
+      return;
+    }
+
+    // 中文为主的文本 → 智能分段
+    const segments = splitByLang(text, lang);
+    segments.forEach((seg, i) => {
+      const u = new SpeechSynthesisUtterance(seg.text);
+      u.lang = seg.lang === 'en' ? 'en-US' : 'zh-CN';
+      // 英文稍慢一点，更清晰
+      u.rate = seg.lang === 'en' ? 0.85 : 0.9;
+      u.pitch = 1.1;
+      window.speechSynthesis.speak(u);
+    });
   } catch(e) { console.warn('TTS fail', e); }
 }
 function stopSpeak() { try { window.speechSynthesis.cancel(); } catch(e){} }
@@ -1484,7 +1533,9 @@ function init() {
     setTimeout(() => $('#speakBtn').classList.remove('active'), 400);
     if (!currentQuiz) return;
     const q = currentQuiz.questions[currentQuiz.idx];
+    // 英语题整句用英语发音；其他题走智能分段（中文念中文、英文念英文）
     speak(q.q, q._subject === 'english' ? 'en-US' : 'zh-CN');
+    // 其实上面一行：传 'zh-CN' 会自动触发智能分段，英语单词会用英语念
   };
   $('#aiBtn').onclick = () => {
     $('#aiBtn').classList.add('active');

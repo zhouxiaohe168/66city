@@ -210,7 +210,7 @@ require('dotenv').config();  // 需要先 npm install dotenv
 或者用 shell 环境变量：
 
 ```bash
-ANTHROPIC_API_KEY=sk-ant-xxx node server.js
+ANTHROPIC_API_KEYANTHROPIC_API_KEYREPLACE_ME
 ```
 
 ---
